@@ -3,22 +3,33 @@
 
 #include <stdlib.h>
 #include "SDL2/SDL.h"
-#include "window.h"
 
 typedef struct AgPoint
 {
-    int x, y;
+    int16_t x, y;
     double dx, dy;
     int alive;
+    int color;
 }AgPoint;
 
-AgPoint *AgPoints;
-int *grid;
+typedef struct PointGrid
+{
+    int width, height;
+    int size;
+    //For dead points
+    int gridsize;
+    int *points;
+}PointGrid;
 
-void init_grid(int w, int h);
+size_t AgPoints_len;
+AgPoint *AgPoints;
+PointGrid *grid;
+
+void init_grid(int w, int h, int size);
 void init_points(int numpoints);
-void create_points(int numpoints);
+void create_point(AgPoint *point);
 void update_point(AgPoint *point);
+void settle(AgPoint *point);
 void gameloop(void);
 
 #endif

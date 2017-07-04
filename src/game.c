@@ -1,60 +1,144 @@
+#include <unistd.h>
 #include "game.h"
-#define SIZE 10
+#include "window.h"
 
-void init_grid(int w, int h)
+void init_grid(int w, int h, int size)
 {
-    grid = (int *)calloc(w*h, sizeof(int));
+    grid = (PointGrid *)malloc(sizeof(PointGrid));
+    grid->size = size;
+    grid->width = w/grid->size;
+    grid->height = h/grid->size;
+    grid->gridsize = grid->width * grid->height;
+    grid->points = (int *)calloc(grid->gridsize, sizeof(int));
+    grid->points[grid->width/2 + (grid->height/2 * grid->width)] = 1;
 }
 
 void init_points(int numpoints)
 {
-    AgPoints = (AgPoint *)calloc(numpoints, sizeof(AgPoint));
-    create_points(numpoints);
+    AgPoints_len = numpoints;
+    AgPoints = (AgPoint *)calloc(AgPoints_len, sizeof(AgPoint));
+    int i;
+    for (i = 0; i < AgPoints_len; i++)
+    {
+        create_point(&AgPoints[i]);
+    }
 }
 
-void create_points(int numpoints)
+void create_point(AgPoint *point)
 {
-    int i;
-    for (i = 0; i < numpoints; i++)
+    int corner = rand();
+    switch (corner%4)
     {
-        AgPoints[i].alive = 1;
-        AgPoints[i].dx = 4.0;
-        AgPoints[i].dy = 4.0;
-        AgPoint point=AgPoints[i];
-        printf("dx: %d, dy: %d, x: %d, y: %d, alive: %d\n", (int)point.dx, (int)point.dy, point.x, point.y, point.alive);
+        case 0:
+            point->y = 0;
+            point->x = 0;
+            break;
+        case 1:
+            point->y = 0;
+            point->x = grid->width-1;
+            break;
+        case 2:
+            point->y = grid->height-1;
+            point->x = 0;
+            break;
+        case 3:
+            point->y = grid->height-1;
+            point->x = grid->width-1;
+            break;
     }
+    point->dx = 1.0;
+    point->dy = 1.0;
+    point->alive = 1;
+    point->color = 0xff00ff;
 }
 
 void update_point(AgPoint *point)
 {
-    printf("dx: %f, dy: %f\n", point->dx, point->dy);
-    double rx = (double)(rand() % 10 - 5) / 10;
-    double ry = (double)(rand() % 10 - 5) / 10;
-    printf("rx: %f, ry: %f\n", rx, ry);
-    point->dx *= rx;
-    point->dy *= ry;
-    //point->dx *= (double)(rand() % 3 - 1);
-    //point->dy *= (double)(rand() % 3 - 1);
-    printf("dx: %f, dy: %f\n", point->dx, point->dy);
-    if ((point->x += (int)point->dx) > 0 && (point->x += (int)point->dx) < width)
+    int cont = rand();
+    // Increating multiplier makes points more "erratic"
+    if (cont < (RAND_MAX/10)*7)
     {
-        point->x += (int)point->dx;
+        int direction = rand();
+        if (direction < RAND_MAX/4)
+        {
+            point->dx = 1;
+        }//Accelerate in positive x
+        else if (direction < (RAND_MAX/4) * 2)
+        {
+            point->dy = 1;
+        }//Accelerate in positive y
+        else if (direction < (RAND_MAX/4) * 3)
+        {
+            point->dx = -1;
+        }//Accelerate in negative x
+        else if (direction < RAND_MAX)
+        {
+            point->dy = -1;
+        }//Accelerate in negative y
+        else
+        {
+            printf("Something is really wrong\n");
+        }
     }
-    if ((point->y += (int)point->dy) > 0 && (point->y += (int)point->dy) < height)
+
+    if ((point->x + (int)point->dx) < 0 || (point->x + (int)point->dx) > grid->width-1)
     {
-        point->y += (int)point->dy;
+        if ((point->x - (int)point->dx) < 1 || (point->x - (int)point->dx) > grid->width-1)
+        {
+            point->dx *= -1;
+            point->x += (int)point->dx;
+        }
     }
-    printf("x: %d, y: %d\n", point->x, point->y);
+    else
+    {
+            point->x += (int)point->dx;
+    }
+
+    if ((point->y + (int)point->dy) < 0 || (point->y + (int)point->dy) > grid->height-1)
+    {
+        if ((point->y - (int)point->dy) < 1 || (point->y - (int)point->dy) > grid->height-1)
+        {
+            point->dy *= -1;
+            point->y += (int)point->dy;
+        }
+    }
+    else
+    {
+            point->y += (int)point->dy;
+    }
+
+    if (point->x < grid->width-1 && grid->points[point->x + (point->y * grid->width) + 1]) 
+    {
+        settle(point);
+    }//Check to right
+    else if (point->x >= 0 && grid->points[point->x + (point->y * grid->width) - 1]) 
+    {
+        settle(point);
+    }//Check to left
+    else if (point->y > 0 && grid->points[point->x + ((point->y-1) * grid->width)]) 
+    {
+        settle(point);
+    }//Check above
+    else if (point->y < grid->height-1 && grid->points[point->x + ((point->y+1) * grid->width)]) 
+    {
+        settle(point);
+    }//Check below
+}
+
+void settle(AgPoint *point)
+{
+    grid->points[point->x + (point->y * grid->width)] = 1;
+    point->alive=0;
+    //create_point(point);
 }
 
 void gameloop(void)
 {
-    int length;
     SDL_Surface *surf = SDL_GetWindowSurface(window);
     SDL_Rect rect;
     while (1)
     {
-        sleep(1);
+        //usleep(5000);
         SDL_Event e;
         if (SDL_PollEvent(&e))
         {
@@ -66,24 +150,39 @@ void gameloop(void)
         SDL_FillRect(surf,
                      NULL,
                      0x000000);
-        for (length = sizeof(AgPoints)/sizeof(AgPoints[0]); length >=0; length--)
+        size_t i;
+        for (i = 0; i < AgPoints_len; i++)
         {
-            //printf("notyo\n");
-            if (AgPoints[length].alive)
+            if (AgPoints[i].alive)
             {
-                printf("yo\n");
-                update_point(&AgPoints[length]);
-                rect.x = AgPoints[length].x * SIZE;
-                rect.y = AgPoints[length].y * SIZE;
-                rect.w = SIZE;
-                rect.h = SIZE;
+                update_point(&AgPoints[i]);
+                rect.x = AgPoints[i].x * grid->size;
+                rect.y = AgPoints[i].y * grid->size;
+                rect.w = grid->size;
+                rect.h = grid->size;
                 SDL_FillRect(surf,
                              &rect,
-                             0xff00ff);
-                             
+                             AgPoints[i].color);
+            }
+        }
+        
+        size_t x, y;
+        for (y = 0; y < grid->height; y++)
+        {
+            for (x = 0; x < grid->width; x++)
+            {
+                if (grid->points[x + (y * grid->width)])
+                {
+                    rect.x = x * grid->size;
+                    rect.y = y * grid->size;
+                    rect.w = grid->size;
+                    rect.h = grid->size;
+                    SDL_FillRect(surf,
+                                 &rect,
+                                 0x0000ff);
+                }
             }
         }
         SDL_UpdateWindowSurface(window);
     }
 }
-

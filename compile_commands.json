@@ -1,0 +1,41 @@
+[
+    {
+        "arguments": [
+            "cc", 
+            "-c", 
+            "-w", 
+            "-I./inc/", 
+            "-o", 
+            "SDLShit", 
+            "src/main.c"
+        ], 
+        "directory": "/home/peter/programming/soni/sdlshit", 
+        "file": "src/main.c"
+    }, 
+    {
+        "arguments": [
+            "cc", 
+            "-c", 
+            "-w", 
+            "-I./inc/", 
+            "-o", 
+            "SDLShit", 
+            "src/window.c"
+        ], 
+        "directory": "/home/peter/programming/soni/sdlshit", 
+        "file": "src/window.c"
+    }, 
+    {
+        "arguments": [
+            "cc", 
+            "-c", 
+            "-w", 
+            "-I./inc/", 
+            "-o", 
+            "SDLShit", 
+            "src/game.c"
+        ], 
+        "directory": "/home/peter/programming/soni/sdlshit", 
+        "file": "src/game.c"
+    }
+]

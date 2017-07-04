@@ -2,6 +2,8 @@
 #include "window.h"
 #include "game.h"
 
+#define NUMPOINTS 1000000
+
 int main(void)
 {
     uint32_t subsystems = SDL_INIT_VIDEO;
@@ -16,8 +18,8 @@ int main(void)
         return 1;
     }    
 
-    init_grid(64, 48);
-    init_points(1);
+    init_grid(WIDTH, HEIGHT, 1);
+    init_points(NUMPOINTS);
     gameloop();
 
     SDL_DestroyWindow(window);

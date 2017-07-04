@@ -4,8 +4,9 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 
-int width;
-int height;
+#define WIDTH 640
+#define HEIGHT 480
+
 char* title;
 
 SDL_Window *window;
