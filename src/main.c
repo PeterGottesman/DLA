@@ -2,7 +2,8 @@
 #include "window.h"
 #include "game.h"
 
-#define NUMPOINTS 1000000
+#define NUMPOINTS 100000
+#define SIZE 1
 
 int main(void)
 {
@@ -18,7 +19,7 @@ int main(void)
         return 1;
     }    
 
-    init_grid(WIDTH, HEIGHT, 1);
+    init_grid(WIDTH, HEIGHT, SIZE);
     init_points(NUMPOINTS);
     gameloop();
 
