@@ -1,4 +1,4 @@
-EXE=SDLShit
+EXE=DLA
 OBJS=src/main.c\
 	 src/window.c\
 	 src/game.c
