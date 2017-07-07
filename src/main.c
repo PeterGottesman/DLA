@@ -2,7 +2,7 @@
 #include "window.h"
 #include "game.h"
 
-#define NUMPOINTS 100000
+#define NUMPOINTS 10000
 #define SIZE 1
 
 int main(void)

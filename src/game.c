@@ -110,19 +110,35 @@ void update_point(AgPoint *point)
     if (point->x < grid->width-1 && grid->points[point->x + (point->y * grid->width) + 1]) 
     {
         settle(point);
-    }//Check to right
-    else if (point->x >= 0 && grid->points[point->x + (point->y * grid->width) - 1]) 
+    }//east
+    else if (point->x > 0 && grid->points[point->x + (point->y * grid->width) - 1]) 
     {
         settle(point);
-    }//Check to left
+    }//west
     else if (point->y > 0 && grid->points[point->x + ((point->y-1) * grid->width)]) 
     {
         settle(point);
-    }//Check above
+    }//north
     else if (point->y < grid->height-1 && grid->points[point->x + ((point->y+1) * grid->width)]) 
     {
         settle(point);
-    }//Check below
+    }//south
+    else if (point->x < grid->width-1 && point->y > 0 && grid->points[point->x + ((point->y-1) * grid->width) + 1]) 
+    {
+        settle(point);
+    }//north east
+    else if (point->x > 0 && point->y > 0 && grid->points[point->x + ((point->y-1) * grid->width) - 1]) 
+    {
+        settle(point);
+    }//north west
+    else if (point->x < grid->width-1 && point->y < grid->height-1 && grid->points[point->x + ((point->y+1) * grid->width) + 1]) 
+    {
+        settle(point);
+    }//south east
+    else if (point->x > 0 && point->y < grid->height-1 && grid->points[point->x + ((point->y+1) * grid->width) - 1]) 
+    {
+        settle(point);
+    }//south west
 }
 
 void settle(AgPoint *point)
