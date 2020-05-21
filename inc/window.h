@@ -4,8 +4,8 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 720
+#define HEIGHT 720
 
 char* title;
 

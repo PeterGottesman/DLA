@@ -54,9 +54,9 @@ void create_point(AgPoint *point)
 
 void update_point(AgPoint *point)
 {
-    int cont = rand();
+    long cont = rand();
     // Increating multiplier makes points more "erratic"
-    if (cont < (RAND_MAX/10)*7)
+    if (cont < ((long)RAND_MAX/10)*7)
     {
         int direction = rand();
         if (direction < RAND_MAX/4)
@@ -152,9 +152,16 @@ void gameloop(void)
 {
     SDL_Surface *surf = SDL_GetWindowSurface(window);
     SDL_Rect rect;
+    struct timespec before, after;
+    int loopCount = 0;
+    size_t x, y, i, num_alive;
     while (1)
     {
-        //usleep(5000);
+    	if(clock_gettime(CLOCK_MONOTONIC, &before) == -1)
+	{
+	    exit(-1);
+	}
+	//usleep(5000);
         SDL_Event e;
         if (SDL_PollEvent(&e))
         {
@@ -166,7 +173,8 @@ void gameloop(void)
         SDL_FillRect(surf,
                      NULL,
                      0x000000);
-        size_t i;
+
+	num_alive = 0;
         for (i = 0; i < AgPoints_len; i++)
         {
             if (AgPoints[i].alive)
@@ -179,10 +187,10 @@ void gameloop(void)
                 SDL_FillRect(surf,
                              &rect,
                              AgPoints[i].color);
+		num_alive++;
             }
         }
         
-        size_t x, y;
         for (y = 0; y < grid->height; y++)
         {
             for (x = 0; x < grid->width; x++)
@@ -200,5 +208,26 @@ void gameloop(void)
             }
         }
         SDL_UpdateWindowSurface(window);
-    }
+
+	if(!num_alive)
+	{
+	  SDL_SaveBMP(surf, "/tmp/dla.bmp");
+	  break;
+	}
+
+	if(clock_gettime(CLOCK_MONOTONIC, &after) == -1)
+	{
+	    exit(-1);
+	}
+
+	if(after.tv_sec > before.tv_sec)
+	{
+	    printf("%d frames this second\n", loopCount);
+	    loopCount=0;
+	}
+	else
+	{
+	  loopCount++;
+	}
+    }	
 }

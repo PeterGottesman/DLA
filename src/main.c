@@ -3,9 +3,9 @@
 #include "game.h"
 
 #define NUMPOINTS 10000
-#define SIZE 1
+#define SIZE 2
 
-int main(void)
+int main(int argc, char *argv[])
 {
     uint32_t subsystems = SDL_INIT_VIDEO;
     if (SDL_Init(subsystems) != 0)

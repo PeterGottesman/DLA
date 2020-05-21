@@ -2,6 +2,7 @@
 #define _GAME_H
 
 #include <stdlib.h>
+#include <time.h>
 #include "SDL2/SDL.h"
 
 typedef struct AgPoint
